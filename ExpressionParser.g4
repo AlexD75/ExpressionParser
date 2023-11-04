@@ -7,32 +7,27 @@ equation
     ;
 
 right_equation
-    : SPACE? large_expression+ EOF
+    : nested_polynomial+ EOF
     ;
 
 left_equation
-    : large_expression+ EQUAL
+    : nested_polynomial+ EQUAL
     ;
 
-large_expression
-    : (LR_BRACKET polynomial+ RR_BRACKET SPACE? OPERATOR? SPACE?)+
-    | (polynomial+ SPACE? OPERATOR? SPACE?)+
-    | element+ SPACE?
+nested_polynomial
+    : (OPERATOR? LR_BRACKET polynomial+ RR_BRACKET)+ (POWER known_value)?
+    | (OPERATOR? polynomial+)+
     ;
 
 polynomial
-    : LR_BRACKET element+ RR_BRACKET
-    | LR_BRACKET element+ RR_BRACKET SPACE? OPERATOR? SPACE?
-    | element+
-    ;
-
-element
-    : monomial OPERATOR SPACE?
-    | monomial
+    : OPERATOR? LR_BRACKET monomial+ RR_BRACKET (POWER known_value)?
+    | LR_BRACKET monomial+ RR_BRACKET (POWER known_value)?
+    | monomial+
     ;
 
 monomial
-    : (incognita | known_value) SPACE?
+    : OPERATOR (incognita | known_value) (POWER known_value)?
+    | (incognita | known_value) (POWER known_value)?
     ;
 
 known_value

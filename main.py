@@ -1,8 +1,10 @@
-from MyTSqlParser import *
-from gen.TSqlLexer import  *
+from gen.TSqlLexer import *
 from gen.TSqlParser import *
 
-def run_parser(in_file) -> [str,int,str,[]]:
+from MyTSqlParser import *
+
+
+def run_parser(in_file) -> [str, int, str, []]:
     lexer = stream = parser = tree = listener = walker = None
     err_code: int = 0
     err_msg: str = ""
@@ -16,7 +18,7 @@ def run_parser(in_file) -> [str,int,str,[]]:
     parser.removeErrorListeners()
     parser.addErrorListener(CustomErrorListener())
     try:
-        tree = parser.tsql_file()       # ! START RULE of the GRAMMAR
+        tree = parser.tsql_file()  # ! START RULE of the GRAMMAR
     except Exception as exc:
         err_code = exc.args[0]
         err_msg = exc.args[1]
@@ -27,18 +29,19 @@ def run_parser(in_file) -> [str,int,str,[]]:
 
     try:
         walker.walk(listener, tree)
-    except Exception  as exc:
+    except Exception as exc:
         err_code = exc.args[0]
         err_msg = exc.args[1]
 
     return listener.converted_query, err_code, err_msg, listener.warnings_message
+
 
 def main(argv):
     input_file = None
     input_number = input("SQL filename number  (InputTestxx.txt)=")
     input_filename = "./InputTest/InputTest" + input_number + ".txt"
     try:
-        input_file = open(input_filename,"r")
+        input_file = open(input_filename, "r")
     except FileNotFoundError as exc:
         print(f'File {input_filename} doesn''t exist')
         quit(1)
@@ -50,13 +53,14 @@ def main(argv):
         print(f"ERROR {err_code}:{err_msg}")
     else:
         log_file.write(cnv_qry)
-        if len(warn_msg_list)>0:
+        if len(warn_msg_list) > 0:
             for warn_msg in warn_msg_list:
-                print (warn_msg)
+                print(warn_msg)
         print(cnv_qry)
 
     input_file.close()
     log_file.close()
+
 
 if __name__ == '__main__':
     main(sys.argv)
