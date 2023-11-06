@@ -1,30 +1,30 @@
-from gen.TSqlLexer import *
-from gen.TSqlParser import *
+from MyParser import *
+from gen.ExpressionLexer import *
+from gen.ExpressionParser import *
 
-from MyTSqlParser import *
 
-
-def run_parser(in_file) -> [str, int, str, []]:
+def run_parser(source: str) -> [str, int, str, []]:
     lexer = stream = parser = tree = listener = walker = None
     err_code: int = 0
     err_msg: str = ""
 
-    input_stream = in_file.read()
-    lexer = TSqlLexer(InputStream(input_stream))
+    lexer = ExpressionLexer(InputStream(source))
     stream = CommonTokenStream(lexer)
-    parser = TSqlParser(stream)
+    parser = ExpressionParser(stream)
     # substitute default ErrorListener (writing syntax error on console)
     # with custom ErrorListener
     parser.removeErrorListeners()
     parser.addErrorListener(CustomErrorListener())
+
     try:
-        tree = parser.tsql_file()  # ! START RULE of the GRAMMAR
+        tree = parser.equation()  # ! START RULE of the GRAMMAR
+        print(tree)
     except Exception as exc:
         err_code = exc.args[0]
         err_msg = exc.args[1]
         return '', err_code, err_msg, []
 
-    listener = TransliteTSqlParser()
+    listener = MyParser()
     walker = ParseTreeWalker()
 
     try:
@@ -33,33 +33,26 @@ def run_parser(in_file) -> [str, int, str, []]:
         err_code = exc.args[0]
         err_msg = exc.args[1]
 
-    return listener.converted_query, err_code, err_msg, listener.warnings_message
+    return "", err_code, err_msg, ""
 
 
 def main(argv):
-    input_file = None
-    input_number = input("SQL filename number  (InputTestxx.txt)=")
-    input_filename = "./InputTest/InputTest" + input_number + ".txt"
+    input_filename = "./InputTest/InputTest01.txt"
+
     try:
-        input_file = open(input_filename, "r")
+        with open(input_filename, "r") as source:
+            lines = source.readlines()
+
+            cnv_qry, err_code, err_msg, warn_msg_list = run_parser(lines[0])
+            print(cnv_qry)
+
+            # for line in lines:
+            #     cnv_qry, err_code, err_msg, warn_msg_list = run_parser(line)
+            #     print(cnv_qry)
+
     except FileNotFoundError as exc:
         print(f'File {input_filename} doesn''t exist')
         quit(1)
-    log_file = open(".\converted_queries.txt", 'w')
-    cnv_qry, err_code, err_msg, warn_msg_list = run_parser(input_file)
-
-    if err_code != 0:
-        log_file.write(f"ERROR {err_code}:{err_msg}")
-        print(f"ERROR {err_code}:{err_msg}")
-    else:
-        log_file.write(cnv_qry)
-        if len(warn_msg_list) > 0:
-            for warn_msg in warn_msg_list:
-                print(warn_msg)
-        print(cnv_qry)
-
-    input_file.close()
-    log_file.close()
 
 
 if __name__ == '__main__':

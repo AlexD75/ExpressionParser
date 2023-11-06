@@ -24,7 +24,7 @@ DIVIDE:              '/';
 PLUS:                '+';
 MINUS:               '-';
 POWER:               '^';
-
+NEWLINE:             ('\r'? '\n' | '\r')+;
 fragment LETTER:       [A-Z];
 //fragment DEC_DOT_DEC:  (DEC_DIGIT+ '.' DEC_DIGIT+ |  DEC_DIGIT+ '.' | '.' DEC_DIGIT+);
 fragment DEC_DIGIT:    [0-9];

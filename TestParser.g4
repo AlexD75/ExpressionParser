@@ -1,4 +1,4 @@
-parser grammar ExpressionParser;
+parser grammar TestParser;
 
 options { tokenVocab=ExpressionLexer; }
 
